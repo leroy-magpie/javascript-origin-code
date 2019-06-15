@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="d1">111</div>
+    <script type="text/html" id="moban">
+      <div>name:{{name}}{{age}}</div>
+      <div>age:{{age}}</div>
+    </script>
+    <script type="text/javascript">
+      function a(id, data) {
+        var str = document.getElementById(id).innerText
+        var res, value
+        while ((res = /{{([^}]*)}}/g.exec(str))) {
+          if ((value = data[res[1]])) {
+            str = str.replace(res[0], value)
+          }
+        }
+        return str
+      }
+      var data = {
+        name: 'data',
+        age: 1
+      }
+      d1.innerHTML = a('moban', data)
+    </script>
+  </body>
+</html>

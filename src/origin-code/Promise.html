@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title></title>
+  </head>
+  <body></body>
+  <script type="text/javascript">
+    class promise {
+      constructor(fn) {
+        if (typeof fn !== 'function') {
+          throw TypeError(`promise resolver ${fn} is not a function`)
+        }
+
+        this.status = 'pending'
+        this.value = undefined
+        this.resolved = []
+        this.rejected = []
+
+        try {
+          fn(this.change('resolved'), this.change('rejected'))
+        } catch (e) {
+          this.change('rejected')(e)
+        }
+      }
+      change(status) {
+        return value => {
+          setTimeout(() => {
+            if (this.status == 'pending') {
+              this.status = status
+              this.value = value
+              this[status] ? this[status].forEach(ele => ele()) : ''
+            }
+          })
+        }
+      }
+      then(suc, err) {
+        return new promise((resolve, reject) => {
+          var res
+          var status = this.status
+          var fn = () => {
+            if (res instanceof promise) {
+              res.then(() => resolve(res.value), () => reject(res.value))
+            } else {
+              resolve(res)
+            }
+          }
+          if (status == 'pending') {
+            var callback = cb => () => {
+              res = cb(this.value)
+              fn()
+            }
+            this.resolved.push(callback(suc))
+            this.rejected.push(callback(err))
+          } else {
+            res = status == 'resoved' ? suc(this.value) : err(this.value)
+            fn()
+          }
+        })
+      }
+      static resolve(value) {
+        return value instanceof promise
+          ? value
+          : new promise(resolve => resolve(value))
+      }
+      static reject(value) {
+        return value instanceof promise
+          ? value
+          : new promise((resolve, reject) => reject(value))
+      }
+    }
+
+    var obj = new promise((resolve, reject) =>
+      setTimeout(() => resolve(4), 1000)
+    )
+      .then(
+        suc => {
+          console.log(suc)
+          return new promise((resolve, reject) =>
+            setTimeout(() => resolve(5), 1000)
+          )
+        },
+        err => console.log(err)
+      )
+      .then(
+        suc => {
+          console.log(suc)
+          return 6
+        },
+        err => console.log(err)
+      )
+      .then(suc => console.log(suc), err => console.log(err))
+
+    obj = new promise((resolve, reject) => {
+      console.log(1.1)
+      resolve(2)
+    }).then(
+      suc => {
+        console.log(suc)
+        return new promise((resolve, reject) => resolve(3))
+      },
+      err => console.log(err)
+    )
+    obj.then(suc => console.log(suc), err => console.log(err))
+
+    console.log(1)
+    obj.then(suc => setTimeout(() => console.log(suc), 3000))
+  </script>
+</html>

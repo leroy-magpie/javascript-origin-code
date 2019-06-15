@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title></title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      Function.prototype.myCall = function(ctx) {
+        ctx = ctx || window
+        var fn = ctx.fn,
+          len = arguments.length,
+          arr = []
+        ctx.fn = this
+        for (var i = 1; i < len; i++) {
+          arr.push('arguments[' + i + ']')
+        }
+        var res = eval('ctx.fn(' + arr.join(',') + ')')
+        delete ctx.fn
+        fn !== undefined ? (ctx.fn = fn) : ''
+        return res
+      }
+      //			Function.prototype.myCall=function(ctx,...arg){
+      //				ctx=ctx||window
+      //				var fn=Symbol();
+      //				ctx[fn]=this;
+      //				var res=ctx[fn](...arg);
+      //				delete ctx[fn];
+      //				return res;
+      //			}
+
+      Function.prototype.myApply = function(ctx, arr) {
+        ctx = ctx || window
+        var fn = ctx.fn
+        ctx.fn = this
+        if (arr) {
+          var len = arr.length,
+            newArr = []
+          for (var i = 0; i < len; i++) {
+            newArr.push('arr[' + i + ']')
+          }
+          var res = eval('ctx.fn(' + newArr.join(',') + ')')
+        } else {
+          var res = ctx.fn()
+        }
+        delete ctx.fn
+        fn !== undefined ? (ctx.fn = fn) : ''
+        return res
+      }
+      //			Function.prototype.myApply=function(ctx=window,arr){
+      //				ctx=ctx||window
+      //				var fn=Symbol();
+      //				ctx[fn]=this;
+      //				var res=ctx[fn](...arr);
+      //				delete ctx[fn];
+      //				return res;
+      //			}
+
+      Function.prototype.myBind = function(ctx) {
+        ctx = ctx || window
+        var self = this,
+          args = [].slice.call(arguments, 1)
+        function F() {
+          var _arg = [].slice.call(arguments)
+          return self.apply(
+            this instanceof self ? this : ctx,
+            args.concat(_arg)
+          )
+        }
+        F.prototype = this.prototype
+        F.prototype = Object.create(this.prototype)
+        return F
+      }
+      //			Function.prototype.myBind=function(ctx,...arg){
+      //				ctx=ctx||window
+      //				var self=this;
+      //				function F(...args){
+      //					console.log(arg,args)
+      //					return self.apply(this instanceof self?this:ctx,arg.concat(args));
+      //				}
+      //				F.prototype=Object.create(this.prototype);
+      //				return F
+      //			}
+    </script>
+  </body>
+</html>
