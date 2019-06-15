@@ -23,6 +23,8 @@ findIndex
 includes
 
 from
+isArray
+of
 */
 
 //push
@@ -412,12 +414,12 @@ Array.myFrom = function(origin) {
   return res
 }
 
-//myIsArray
+//isArray
 Array.myIsArray = function(arr) {
   return Object.prototype.toString.call(arr) === '[object Array]'
 }
 
-//Of
+//of
 Array.myOf = function() {
   var len = arguments.length
   arr = []
